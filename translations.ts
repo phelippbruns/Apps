@@ -30,6 +30,10 @@ export const TRANSLATIONS = {
     artist: "Artist",
     trackName: "Track Name",
     folder: "Folder",
+    genre: "Genre",
+    filterArtist: "Filter Artist",
+    filterFolder: "Filter Folder",
+    filterGenre: "Filter Genre",
     criarPlaylist: "Create Playlist",
     discoverTracks: "Discover New Tracks",
     generateSetFlow: "Generate Set Flow",
@@ -50,7 +54,8 @@ export const TRANSLATIONS = {
     tip: "Copy the prompt above and paste it into ChatGPT.",
     selectFolder: "SELECT FOLDER",
     diskUsage: "Disk Usage",
-    langName: "English (EN)"
+    langName: "English (EN)",
+    highestTrackCount: "Folder with most tracks"
   },
   pt: {
     readyToMap: "Pronto para mapear sua",
@@ -82,6 +87,10 @@ export const TRANSLATIONS = {
     artist: "Artista",
     trackName: "Nome da Faixa",
     folder: "Pasta",
+    genre: "Gênero",
+    filterArtist: "Filtrar Artista",
+    filterFolder: "Filtrar Pasta",
+    filterGenre: "Filtrar Gênero",
     criarPlaylist: "Criar playlist",
     discoverTracks: "Descobrir Novas Faixas",
     generateSetFlow: "Gerar Fluxo do Set",
@@ -102,12 +111,13 @@ export const TRANSLATIONS = {
     tip: "Copie o prompt acima e cole no ChatGPT.",
     selectFolder: "SELECIONAR PASTA",
     diskUsage: "Uso de Disco",
-    langName: "Português (PT-BR)"
+    langName: "Português (PT-BR)",
+    highestTrackCount: "Pasta com mais faixas"
   },
   es: {
     readyToMap: "¿Listo para mapear tu",
     library: "Biblioteca?",
-    selectFolderDesc: "Selecciona tu carpeta raíz de música. Lemon 6 escanea recursivamente, extrayendo metadatos profesionales y derivando información de género de tu estructura de carpetas.",
+    selectFolderDesc: "Selecciona tu carpeta raíz de música. Lemon 6 escanea recursivamente, extrayendo metadados profesionales y derivando información de género de tu estructura de carpetas.",
     localOnly: "Procesamiento Solo Local",
     aiReady: "Exportaciones Listas para IA",
     recursive: "Escaneo Recursivo",
@@ -134,6 +144,10 @@ export const TRANSLATIONS = {
     artist: "Artista",
     trackName: "Nombre de la Pista",
     folder: "Carpeta",
+    genre: "Género",
+    filterArtist: "Filtrar Artista",
+    filterFolder: "Filtrar Carpeta",
+    filterGenre: "Filtrar Género",
     criarPlaylist: "Crear playlist",
     discoverTracks: "Descubrir Nuevas Pistas",
     generateSetFlow: "Generar Flujo del Set",
@@ -154,6 +168,7 @@ export const TRANSLATIONS = {
     tip: "Copia el prompt anterior y pégalo en ChatGPT.",
     selectFolder: "SELECCIONAR CARPETA",
     diskUsage: "Uso de Disco",
-    langName: "Español (ES)"
+    langName: "Español (ES)",
+    highestTrackCount: "Carpeta con más pistas"
   }
 };

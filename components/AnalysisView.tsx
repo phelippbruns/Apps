@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { AnalyzedMetadata, Language, RawFile } from '../types';
 import { downloadCsv, downloadTxt } from '../utils';
-import { Download, Table, Search, ChevronUp, ChevronDown, Folder, Music, BarChart3, ChevronRight, FileJson, FileText } from 'lucide-react';
+import { Download, Table, Search, ChevronUp, ChevronDown, Folder, Music, BarChart3, Filter } from 'lucide-react';
 import { TRANSLATIONS } from '../translations';
 
 interface AnalysisViewProps {
@@ -16,10 +16,13 @@ type SortKey = keyof AnalyzedMetadata;
 export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles }) => {
   const t = TRANSLATIONS[lang];
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterArtist, setFilterArtist] = useState('');
+  const [filterFolder, setFilterFolder] = useState('');
+  const [filterGenre, setFilterGenre] = useState('');
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: 'asc' | 'desc' } | null>(null);
   const [showExportMenu, setShowExportMenu] = useState(false);
 
-  // Deduplication logic: Hide duplicates from UI but they remain in original array
+  // Deduplication logic: Hide duplicates from UI
   const dedupedData = useMemo(() => {
     const seen = new Set<string>();
     return data.filter(item => {
@@ -31,36 +34,6 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
       return true;
     });
   }, [data]);
-
-  const stats = useMemo(() => {
-    const folders = new Set<string>();
-    const folderCounts: Record<string, number> = {};
-    
-    // Use deduped data for stats counts if needed, but original for folders
-    dedupedData.forEach(item => {
-      const parts = item.relativePath.split('/');
-      parts.pop();
-      const folderPath = parts.join('/') || 'Root';
-      folders.add(folderPath);
-      folderCounts[folderPath] = (folderCounts[folderPath] || 0) + 1;
-    });
-
-    let topFolder = 'N/A';
-    let maxFiles = 0;
-    Object.entries(folderCounts).forEach(([path, count]) => {
-      if (count > maxFiles) {
-        maxFiles = count;
-        topFolder = path;
-      }
-    });
-
-    return {
-      totalTracks: dedupedData.length,
-      totalFolders: folders.size,
-      topFolder,
-      maxFiles
-    };
-  }, [dedupedData]);
 
   const handleSort = (key: SortKey) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -78,8 +51,24 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
       result = result.filter(item => 
         item.fileName.toLowerCase().includes(lowSearch) ||
         (item.artist || '').toLowerCase().includes(lowSearch) ||
-        (item.title || '').toLowerCase().includes(lowSearch)
+        (item.title || '').toLowerCase().includes(lowSearch) ||
+        (item.genre?.join(', ') || '').toLowerCase().includes(lowSearch)
       );
+    }
+
+    if (filterArtist) {
+      const low = filterArtist.toLowerCase();
+      result = result.filter(item => (item.artist || '').toLowerCase().includes(low));
+    }
+
+    if (filterFolder) {
+      const low = filterFolder.toLowerCase();
+      result = result.filter(item => item.relativePath.toLowerCase().includes(low));
+    }
+
+    if (filterGenre) {
+      const low = filterGenre.toLowerCase();
+      result = result.filter(item => (item.genre?.join(', ') || '').toLowerCase().includes(low));
     }
 
     if (sortConfig) {
@@ -94,7 +83,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
     }
 
     return result;
-  }, [dedupedData, searchTerm, sortConfig]);
+  }, [dedupedData, searchTerm, filterArtist, filterFolder, filterGenre, sortConfig]);
 
   const TableHeader = ({ label, sortKey, className = "" }: { label: string; sortKey: SortKey; className?: string }) => (
     <th 
@@ -110,36 +99,78 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
     </th>
   );
 
+  const handleExportTxt = () => {
+    // Export only filtered relative paths
+    const content = sortedAndFilteredData.map(f => f.relativePath).join('\n');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lemon6_filtered_tracks_${new Date().toISOString().slice(0, 10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowExportMenu(false);
+  };
+
+  const handleExportCsv = () => {
+    const headers = ['Artist', 'Track Name', 'Folder', 'Genre'];
+    const rows = sortedAndFilteredData.map(m => {
+      const artist = m.artist || 'Unknown Artist';
+      const title = m.title || m.fileName.split('.')[0];
+      const folder = m.heuristics.map(h => h.value).join('/') || 'Root';
+      const genre = m.genre?.join(', ') || '';
+      return [artist, title, folder, genre].map(val => `"${val}"`).join(',');
+    });
+    const content = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([content], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `lemon6_filtered_analysis_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowExportMenu(false);
+  };
+
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex items-center gap-6">
-          <div className="w-12 h-12 rounded-2xl bg-lemon/10 flex items-center justify-center text-lemon">
-            <Music size={24} />
-          </div>
-          <div>
-            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">{t.totalTracks}</p>
-            <p className="text-2xl font-black text-white">{stats.totalTracks}</p>
-          </div>
+      {/* Filters Section */}
+      <div className="bg-darkgray p-6 rounded-3xl border border-white/5 flex flex-wrap gap-4 items-end shadow-xl">
+        <div className="flex-1 min-w-[200px] space-y-2">
+          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+            <Filter size={12} /> {t.filterArtist}
+          </label>
+          <input 
+            type="text"
+            className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-2 text-xs font-bold text-white focus:outline-none focus:border-lemon transition-all"
+            value={filterArtist}
+            onChange={(e) => setFilterArtist(e.target.value)}
+            placeholder="Search artists..."
+          />
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex items-center gap-6">
-          <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-            <Folder size={24} />
-          </div>
-          <div>
-            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">{t.totalFolders}</p>
-            <p className="text-2xl font-black text-white">{stats.totalFolders}</p>
-          </div>
+        <div className="flex-1 min-w-[200px] space-y-2">
+          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+            <Filter size={12} /> {t.filterFolder}
+          </label>
+          <input 
+            type="text"
+            className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-2 text-xs font-bold text-white focus:outline-none focus:border-lemon transition-all"
+            value={filterFolder}
+            onChange={(e) => setFilterFolder(e.target.value)}
+            placeholder="Search folders..."
+          />
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6 flex items-center gap-6">
-          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500">
-            <BarChart3 size={24} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest mb-1">{t.topFolder} ({stats.maxFiles} files)</p>
-            <p className="text-xl font-black text-white truncate">{stats.topFolder}</p>
-          </div>
+        <div className="flex-1 min-w-[200px] space-y-2">
+          <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest flex items-center gap-2">
+            <Filter size={12} /> {t.filterGenre}
+          </label>
+          <input 
+            type="text"
+            className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-2 text-xs font-bold text-white focus:outline-none focus:border-lemon transition-all"
+            value={filterGenre}
+            onChange={(e) => setFilterGenre(e.target.value)}
+            placeholder="Search genres..."
+          />
         </div>
       </div>
 
@@ -167,7 +198,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
               onClick={() => setShowExportMenu(!showExportMenu)}
               className="flex items-center gap-2 px-6 py-3 bg-white/5 text-white text-xs font-black rounded-xl hover:bg-lemon hover:text-charcoal transition-all shadow-lg active:scale-95"
             >
-              <Download size={14} />
+              <Download size={14} className="text-lemon" />
               {t.export}
               <ChevronDown size={14} className={`transition-transform duration-200 ${showExportMenu ? 'rotate-180' : ''}`} />
             </button>
@@ -175,17 +206,15 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
             {showExportMenu && (
               <div className="absolute right-0 mt-2 w-48 bg-charcoal border border-white/10 rounded-xl shadow-2xl py-2 z-30 animate-in fade-in zoom-in duration-200">
                 <button 
-                  onClick={() => { downloadTxt(rawFiles); setShowExportMenu(false); }}
+                  onClick={handleExportTxt}
                   className="w-full text-left px-4 py-3 text-xs font-black text-gray-300 hover:bg-lemon hover:text-charcoal flex items-center gap-3 transition-colors"
                 >
-                  <FileText size={14} />
                   {t.exportAsTxt}
                 </button>
                 <button 
-                  onClick={() => { downloadCsv(dedupedData); setShowExportMenu(false); }}
+                  onClick={handleExportCsv}
                   className="w-full text-left px-4 py-3 text-xs font-black text-gray-300 hover:bg-lemon hover:text-charcoal flex items-center gap-3 transition-colors"
                 >
-                  <FileJson size={14} />
                   {t.exportAsCsv}
                 </button>
               </div>
@@ -200,6 +229,7 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
                 <TableHeader label={t.artist} sortKey="artist" />
                 <TableHeader label={t.trackName} sortKey="title" />
                 <TableHeader label={t.folder} sortKey="relativePath" />
+                <TableHeader label={t.genre} sortKey="genre" />
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 font-medium">
@@ -215,6 +245,9 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
                     </td>
                     <td className="px-6 py-4 text-gray-500 italic truncate max-w-[300px]">
                       {folder}
+                    </td>
+                    <td className="px-6 py-4 text-gray-400 font-mono text-[10px] tracking-tight uppercase">
+                      {item.genre?.join(', ') || ''}
                     </td>
                   </tr>
                 );

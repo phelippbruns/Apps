@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { ChevronRight, ChevronLeft, X, Check } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
 
 interface Slide {
   title: string;
@@ -21,7 +21,7 @@ const slides: Slide[] = [
   },
   {
     title: "Step 2: Metadata Extraction",
-    description: "Our engine extracts BPM, Keys, and high-fidelity tags from MP3, FLAC, WAV, and AIFF files in the background.",
+    description: "Our engine extracts Genre, Artista and high-fidelity tags from supported files in the background.",
     icon: "⚙️"
   },
   {
@@ -42,6 +42,7 @@ interface OnboardingProps {
 
 export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [current, setCurrent] = useState(0);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const next = () => {
     if (current === slides.length - 1) onComplete();
@@ -52,9 +53,23 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     if (current > 0) setCurrent(c => c - 1);
   };
 
+  // Close when clicking outside
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onComplete();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-6">
-      <div className="bg-charcoal border border-white/10 w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl flex flex-col">
+    <div 
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-6"
+      onClick={handleOverlayClick}
+    >
+      <div 
+        ref={modalRef}
+        className="bg-charcoal border border-white/10 w-full max-w-xl rounded-3xl overflow-hidden shadow-2xl flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Progress Bar */}
         <div className="flex h-1 bg-white/5">
           {slides.map((_, idx) => (
