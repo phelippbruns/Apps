@@ -2,6 +2,15 @@
 import React, { useRef } from 'react';
 import { Upload, FolderOpen } from 'lucide-react';
 
+// Fix: Corrected module augmentation to properly add non-standard directory attributes to React.InputHTMLAttributes.
+// Moving it here ensures the 'react' module is correctly found and augmented within the module scope.
+declare module 'react' {
+  interface InputHTMLAttributes<T> {
+    webkitdirectory?: string;
+    directory?: string;
+  }
+}
+
 interface FileUploaderProps {
   onFilesSelected: (files: FileList) => void;
   isProcessing: boolean;
@@ -60,13 +69,3 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onFilesSelected, isP
     </div>
   );
 };
-
-// Fix: Corrected module augmentation to properly add non-standard directory attributes to React.InputHTMLAttributes.
-// The 'extends' clause was removed because declaration merging automatically includes existing members of the interface,
-// which also fixes the 'Cannot find name HTMLAttributes' error.
-declare module 'react' {
-  interface InputHTMLAttributes<T> {
-    webkitdirectory?: string;
-    directory?: string;
-  }
-}

@@ -79,7 +79,8 @@ export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, onUpda
                 Folder-Derived Genre Distribution (Heuristic)
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {Object.entries(stats.genreSignals).sort((a,b) => b[1] - a[1]).map(([genre, count]) => (
+                {/* Fixed: Cast Object.entries result to [string, number][] to ensure arithmetic operations are valid */}
+                {(Object.entries(stats.genreSignals) as [string, number][]).sort((a,b) => b[1] - a[1]).map(([genre, count]) => (
                   <div key={genre} className="bg-white/5 p-4 rounded-lg border border-white/5 group hover:border-lemon/30 transition-colors">
                     <p className="text-gray-400 text-[10px] uppercase font-black tracking-tighter mb-1">{genre}</p>
                     <div className="flex items-end justify-between">
@@ -104,7 +105,8 @@ export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, onUpda
                 Library Tempo Density (BPM)
               </h4>
               <div className="flex items-end gap-2 h-48 bg-black/20 p-4 rounded-xl">
-                {Object.entries(stats.bpmBuckets).map(([range, count]) => (
+                {/* Fixed: Cast Object.entries result to [string, number][] to ensure arithmetic operations are valid */}
+                {(Object.entries(stats.bpmBuckets) as [string, number][]).map(([range, count]) => (
                   <div key={range} className="flex-1 flex flex-col items-center gap-2 group">
                     <div className="w-full bg-blue-500/20 group-hover:bg-blue-500/40 transition-colors rounded-t relative flex items-end justify-center" 
                          style={{ height: `${(count / data.length) * 100 * 2}%` }}>
