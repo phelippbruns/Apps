@@ -7,7 +7,8 @@ export enum AppMode {
 
 export type DataSource = 'filesystem' | 'folder_heuristic' | 'analyzed' | 'ai_suggested';
 
-// Added RawFile interface to resolve 'no exported member' errors
+export type AIProvider = 'ChatGPT' | 'Gemini' | 'Claude' | 'Custom';
+
 export interface RawFile {
   id: string;
   name: string;
@@ -38,7 +39,7 @@ export interface AnalyzedMetadata {
   genre?: string[];
   year?: number;
   bpm?: number;
-  key?: string; // Musical key
+  key?: string;
   duration?: number;
   sampleRate?: number;
   bitrate?: number;

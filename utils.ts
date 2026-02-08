@@ -1,5 +1,5 @@
 
-import { RawFile, AnalyzedMetadata, HeuristicSignal } from './types';
+import { RawFile, AnalyzedMetadata, HeuristicSignal, AIProvider } from './types';
 import { GoogleGenAI, Type } from "@google/genai";
 
 export const formatBytes = (bytes: number, decimals = 2) => {
@@ -18,8 +18,12 @@ export const formatDuration = (seconds?: number) => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
+export const getRawDiscographyText = (files: RawFile[]) => {
+  return files.map(f => f.relativePath).join('\n');
+};
+
 export const downloadTxt = (files: RawFile[]) => {
-  const content = files.map(f => f.relativePath).join('\n');
+  const content = getRawDiscographyText(files);
   const blob = new Blob([content], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -66,7 +70,6 @@ export const isMusicFile = (fileName: string) => {
 
 export const extractHeuristics = (path: string): HeuristicSignal[] => {
   const parts = path.split('/');
-  // Remove the filename itself
   parts.pop();
   return parts.map((part, index) => ({
     level: index,
@@ -75,15 +78,26 @@ export const extractHeuristics = (path: string): HeuristicSignal[] => {
   }));
 };
 
-/**
- * Fixed: Implemented responseSchema using Type from @google/genai for reliable JSON responses.
- * Follows the standard Google GenAI SDK practices for complex text tasks.
- */
+export const generateExternalAIPrompt = (provider: AIProvider, libraryText: string, intent: string) => {
+  const systemRole = "You are a world-class DJ music curator and library organization expert.";
+  const task = `Based on the following music library list, please: ${intent || 'analyze the collection and suggest a creative 1-hour set with transition reasoning'}.`;
+  
+  return `[${provider} Prompt Mode]
+${systemRole}
+
+${task}
+
+LIBRARY DATA:
+---
+${libraryText.slice(0, 15000)}${libraryText.length > 15000 ? '\n... (truncated for context limits)' : ''}
+---
+
+Output format requested: Structured list of tracks with BPM, Key, and "Why this works" descriptions.`;
+};
+
 export const getGeminiSetSuggestions = async (tracks: AnalyzedMetadata[], intent: string) => {
-  // Always initialize with apiKey from process.env.API_KEY
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  // Minimal data to save tokens and context
   const trackSnapshot = tracks.map(t => ({
     id: t.id,
     name: t.fileName,
@@ -108,32 +122,18 @@ ${JSON.stringify(trackSnapshot)}`;
           items: {
             type: Type.OBJECT,
             properties: {
-              trackId: {
-                type: Type.STRING,
-                description: 'The unique ID of the track provided in the list.',
-              },
-              transitionReason: {
-                type: Type.STRING,
-                description: 'Reasoning behind the transition from the previous track.',
-              },
-              energy: {
-                type: Type.NUMBER,
-                description: 'Musical energy level on a scale of 1-10.',
-              },
-              grouping: {
-                type: Type.STRING,
-                description: 'A cluster or thematic group name for the track.',
-              },
+              trackId: { type: Type.STRING },
+              transitionReason: { type: Type.STRING },
+              energy: { type: Type.NUMBER },
+              grouping: { type: Type.STRING },
             },
             required: ["trackId", "transitionReason", "energy", "grouping"],
-            propertyOrdering: ["trackId", "transitionReason", "energy", "grouping"],
           }
         },
         thinkingConfig: { thinkingBudget: 0 }
       },
     });
 
-    // Accessing .text property directly (not a method)
     const jsonStr = response.text?.trim() || '[]';
     return JSON.parse(jsonStr);
   } catch (error) {
