@@ -2,15 +2,6 @@
 import React, { useRef } from 'react';
 import { Upload, FolderOpen } from 'lucide-react';
 
-// Fix: Corrected module augmentation to properly add non-standard directory attributes to React.InputHTMLAttributes.
-// Moving it here ensures the 'react' module is correctly found and augmented within the module scope.
-declare module 'react' {
-  interface InputHTMLAttributes<T> {
-    webkitdirectory?: string;
-    directory?: string;
-  }
-}
-
 interface FileUploaderProps {
   onFilesSelected: (files: FileList) => void;
   isProcessing: boolean;
@@ -34,13 +25,20 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onFilesSelected, isP
   return (
     <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-lemon/30 rounded-2xl bg-charcoal hover:border-lemon/60 transition-all cursor-pointer group"
          onClick={handleClick}>
+      {/* 
+          Fix: Removed module augmentation that was causing 'module react not found' errors in this environment.
+          Used a property spread with an 'any' cast to allow non-standard attributes like 'webkitdirectory' 
+          and 'directory' on the input element while bypassing TypeScript strict checking for these props.
+      */}
       <input
         type="file"
         ref={inputRef}
         className="hidden"
-        webkitdirectory=""
-        directory=""
-        multiple
+        {...({
+          webkitdirectory: "",
+          directory: "",
+          multiple: true
+        } as any)}
         onChange={handleChange}
       />
       

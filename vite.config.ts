@@ -10,7 +10,7 @@ export default defineConfig({
     emptyOutDir: true,
     assetsDir: 'assets',
     sourcemap: false,
-    minify: 'terser',
+    minify: 'esbuild',
   },
   define: {
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY),
