@@ -16,6 +16,8 @@ export default defineConfig({
     'process.env.API_KEY': JSON.stringify(process.env.API_KEY),
   },
   server: {
-    historyApiFallback: true,
+    // historyApiFallback removed as it is not a valid Vite server option
+    port: 3000,
+    open: true,
   }
 });
