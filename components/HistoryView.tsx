@@ -21,7 +21,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history, lang, onReope
         </div>
         <div>
           <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic">{t.lastScans}</h2>
-          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">Access your previous library mappings</p>
+          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">{t.pastScansDesc}</p>
         </div>
       </div>
 
@@ -62,7 +62,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history, lang, onReope
                 </p>
 
                 <button className="mt-auto w-full py-3.5 rounded-2xl bg-lemon text-charcoal text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 hover:bg-white active:scale-95 shadow-lg">
-                  {t.reopen}
+                  <span className="uppercase tracking-widest font-black">{t.reopen}</span>
                 </button>
               </div>
             </div>

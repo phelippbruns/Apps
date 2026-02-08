@@ -1,13 +1,17 @@
 
 import React, { useRef } from 'react';
 import { Upload, FolderOpen } from 'lucide-react';
+import { TRANSLATIONS } from '../translations';
+import { Language } from '../types';
 
 interface FileUploaderProps {
   onFilesSelected: (files: FileList) => void;
   isProcessing: boolean;
+  lang: Language;
 }
 
-export const FileUploader: React.FC<FileUploaderProps> = ({ onFilesSelected, isProcessing }) => {
+export const FileUploader: React.FC<FileUploaderProps> = ({ onFilesSelected, isProcessing, lang }) => {
+  const t = TRANSLATIONS[lang];
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleClick = () => {
@@ -25,11 +29,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onFilesSelected, isP
   return (
     <div className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-lemon/30 rounded-2xl bg-charcoal hover:border-lemon/60 transition-all cursor-pointer group"
          onClick={handleClick}>
-      {/* 
-          Fix: Removed module augmentation that was causing 'module react not found' errors in this environment.
-          Used a property spread with an 'any' cast to allow non-standard attributes like 'webkitdirectory' 
-          and 'directory' on the input element while bypassing TypeScript strict checking for these props.
-      */}
       <input
         type="file"
         ref={inputRef}
@@ -46,15 +45,14 @@ export const FileUploader: React.FC<FileUploaderProps> = ({ onFilesSelected, isP
         <FolderOpen className="text-lemon w-10 h-10" />
       </div>
       
-      <h2 className="text-2xl font-black text-white mb-2">SELECT MUSIC DIRECTORY</h2>
+      <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-tight">{t.selectMusicDir}</h2>
       <p className="text-gray-400 text-center max-w-sm">
-        Click to browse or drag your music folder here. <br/>
-        We'll map your library and extract professional DJ tags.
+        {t.selectDirDesc}
       </p>
       
-      <button className="mt-8 px-8 py-3 bg-lemon text-charcoal font-black rounded-full flex items-center gap-2 hover:bg-white transition-colors">
+      <button className="mt-8 px-8 py-3 bg-lemon text-charcoal font-black rounded-full flex items-center gap-2 hover:bg-white transition-colors uppercase tracking-widest text-xs">
         <Upload size={20} />
-        SELECT FOLDER
+        {t.selectFolder}
       </button>
 
       <div className="mt-6 flex gap-4">

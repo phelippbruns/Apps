@@ -9,10 +9,25 @@ interface StatsCardProps {
   stats: AppStats;
   lang: Language;
   isCustomSelection?: boolean;
+  isIAMode?: boolean;
+  onToggleContext?: () => void;
+  useSelectionIfAvailable?: boolean;
 }
 
-export const StatsCard: React.FC<StatsCardProps> = ({ stats, lang, isCustomSelection }) => {
+export const StatsCard: React.FC<StatsCardProps> = ({ 
+  stats, 
+  lang, 
+  isCustomSelection, 
+  isIAMode, 
+  onToggleContext,
+  useSelectionIfAvailable 
+}) => {
   const t = TRANSLATIONS[lang];
+
+  const isClickable = isIAMode && isCustomSelection;
+  const activeLabel = (isIAMode && isCustomSelection && useSelectionIfAvailable) 
+    ? t.customSelection 
+    : t.highestTrackCount;
 
   return (
     <div className="flex flex-col gap-3">
@@ -58,14 +73,36 @@ export const StatsCard: React.FC<StatsCardProps> = ({ stats, lang, isCustomSelec
             <p className="text-xs font-black text-white">{stats.totalFolders.toLocaleString()}</p>
           </div>
         </div>
-        <div className="bg-darkgray px-4 py-2.5 rounded-2xl border border-white/5 flex items-center gap-3 shadow-lg group hover:border-lemon/20 transition-all">
-          <div className="w-7 h-7 rounded-lg bg-lemon/5 flex items-center justify-center group-hover:bg-lemon/10 transition-colors">
-            {isCustomSelection ? <Target className="text-lemon" size={14} /> : <BarChart3 className="text-lemon" size={14} />}
+
+        {/* This card is now interactive in IA mode when a selection exists */}
+        <div 
+          onClick={isClickable ? onToggleContext : undefined}
+          className={`bg-darkgray px-4 py-2.5 rounded-2xl border flex items-center gap-3 shadow-lg group transition-all ${
+            isClickable 
+              ? 'border-lemon/40 cursor-pointer hover:bg-lemon/5 hover:border-lemon active:scale-[0.98]' 
+              : 'border-white/5 hover:border-lemon/20'
+          }`}
+        >
+          <div className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
+            isClickable && useSelectionIfAvailable ? 'bg-lemon text-charcoal' : 'bg-lemon/5 text-lemon group-hover:bg-lemon/10'
+          }`}>
+            {(isCustomSelection && (isIAMode ? useSelectionIfAvailable : true)) ? <Target size={14} /> : <BarChart3 size={14} />}
           </div>
           <div className="min-w-0">
-            <p className="text-[7px] text-gray-500 font-black uppercase tracking-[0.2em] mb-0.5">{isCustomSelection ? t.customSelection : t.highestTrackCount}</p>
-            <p className="text-xs font-black text-white truncate">{isCustomSelection ? t.customSelection : stats.topFolder}</p>
+            <p className={`text-[7px] font-black uppercase tracking-[0.2em] mb-0.5 ${
+              isClickable ? 'text-lemon' : 'text-gray-500'
+            }`}>
+              {activeLabel}
+            </p>
+            <p className="text-xs font-black text-white truncate">
+              {(isIAMode && isCustomSelection && useSelectionIfAvailable) ? t.customSelection : stats.topFolder}
+            </p>
           </div>
+          {isClickable && (
+            <div className="ml-auto text-[8px] font-black text-lemon/40 uppercase tracking-tighter animate-pulse hidden group-hover:block">
+              Click to Toggle
+            </div>
+          )}
         </div>
       </div>
     </div>

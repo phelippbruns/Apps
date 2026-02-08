@@ -25,7 +25,6 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Deduplication logic: Hide duplicates from UI
   const dedupedData = useMemo(() => {
     const seen = new Set<string>();
     return data.filter(item => {
@@ -38,7 +37,6 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
     });
   }, [data]);
 
-  // Extract unique options for filters from dataset
   const filterOptions = useMemo(() => {
     const artists = new Set<string>();
     const folders = new Set<string>();
@@ -106,7 +104,6 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
       result.sort((a, b) => {
         const valA = a[sortConfig.key] || '';
         const valB = b[sortConfig.key] || '';
-        
         if (valA === valB) return 0;
         const comparison = valA < valB ? -1 : 1;
         return sortConfig.direction === 'asc' ? comparison : -comparison;
@@ -215,7 +212,17 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
     setFilterFolder('ALL');
     setFilterGenre('ALL');
     setSearchTerm('');
+    setSelectedIds(new Set()); // Reset selections as requested
   };
+
+  const ExportButton = ({ onClick, label }: { onClick: () => void, label: string }) => (
+    <button 
+      onClick={onClick} 
+      className="w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest text-charcoal hover:bg-black/10 transition-colors"
+    >
+      {label}
+    </button>
+  );
 
   return (
     <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-500">
@@ -319,7 +326,6 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
                   <Download size={16} />
                 </button>
                 
-                {/* Export Tooltip - only visible when menu is hidden and hovered */}
                 {!showExportMenu && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1 bg-lemon text-charcoal font-black text-[10px] uppercase tracking-widest rounded whitespace-nowrap opacity-0 group-hover/export:opacity-100 pointer-events-none transition-opacity">
                     {t.export}
@@ -329,12 +335,10 @@ export const AnalysisView: React.FC<AnalysisViewProps> = ({ data, lang, rawFiles
                 
                 {showExportMenu && (
                   <div className="absolute right-0 top-full pt-2 z-30">
-                    <div className="bg-charcoal border border-lemon/30 rounded-xl shadow-2xl py-2 w-48 animate-in fade-in zoom-in duration-200">
-                      <button onClick={handleCopySelection} className="w-full text-left px-4 py-3 text-xs font-black text-gray-300 hover:bg-lemon hover:text-charcoal transition-colors border-l-2 border-transparent hover:border-lemon">
-                        {copied ? t.copied : t.copySelection}
-                      </button>
-                      <button onClick={handleExportTxt} className="w-full text-left px-4 py-3 text-xs font-black text-gray-300 hover:bg-lemon hover:text-charcoal transition-colors border-l-2 border-transparent hover:border-lemon">{t.exportAsTxt}</button>
-                      <button onClick={handleExportCsv} className="w-full text-left px-4 py-3 text-xs font-black text-gray-300 hover:bg-lemon hover:text-charcoal transition-colors border-l-2 border-transparent hover:border-lemon">{t.exportAsCsv}</button>
+                    <div className="bg-lemon rounded-xl shadow-2xl py-2 w-48 animate-in fade-in zoom-in duration-200 overflow-hidden">
+                      <ExportButton onClick={handleCopySelection} label={copied ? t.copied : t.copySelection} />
+                      <ExportButton onClick={handleExportTxt} label={t.exportAsTxt} />
+                      <ExportButton onClick={handleExportCsv} label={t.exportAsCsv} />
                     </div>
                   </div>
                 )}

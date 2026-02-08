@@ -27,6 +27,7 @@ const App: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [intelligenceContext, setIntelligenceContext] = useState<AnalyzedMetadata[] | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [useSelectionIfAvailable, setUseSelectionIfAvailable] = useState(true);
   
   const [stats, setStats] = useState<AppStats>({
     totalFiles: 0,
@@ -37,7 +38,6 @@ const App: React.FC = () => {
     maxFiles: 0
   });
 
-  // Sync intelligenceContext with selection whenever it changes
   useEffect(() => {
     if (selectedIds.size > 0) {
       const selectedTracks = analyzedMetadata.filter(d => selectedIds.has(d.id));
@@ -47,14 +47,12 @@ const App: React.FC = () => {
     }
   }, [selectedIds, analyzedMetadata]);
 
-  // Reset intelligence context jump if returning to analysis and no manual selection is active
   useEffect(() => {
     if (mode === AppMode.ANALYSIS && selectedIds.size === 0) {
       setIntelligenceContext(null);
     }
   }, [mode, selectedIds.size]);
 
-  // Load language and history
   useEffect(() => {
     try {
       const savedLang = localStorage.getItem('lemon6_lang');
@@ -92,6 +90,7 @@ const App: React.FC = () => {
     setAnalyzedMetadata([]);
     setIntelligenceContext(null);
     setSelectedIds(new Set());
+    setUseSelectionIfAvailable(true);
     setStats({ totalFiles: 0, totalSize: 0, analyzedCount: 0, totalFolders: 0, topFolder: '', maxFiles: 0 });
     setMode(AppMode.RAW);
   };
@@ -103,16 +102,22 @@ const App: React.FC = () => {
       setAnalyzedMetadata(scan.metadata);
       setIntelligenceContext(null);
       setSelectedIds(new Set());
+      setUseSelectionIfAvailable(true);
       setMode(AppMode.ANALYSIS);
     }
   };
 
   const handleIntelligenceJump = (tracks: AnalyzedMetadata[]) => {
-    // If they jump to intelligence from a filtered view without selections, we set that context
     if (selectedIds.size === 0) {
       setIntelligenceContext(tracks);
     }
     setMode(AppMode.INTELLIGENCE);
+  };
+
+  const handleToggleIAContext = () => {
+    if (mode === AppMode.INTELLIGENCE && selectedIds.size > 0) {
+      setUseSelectionIfAvailable(!useSelectionIfAvailable);
+    }
   };
 
   const processFiles = useCallback(async (fileList: FileList) => {
@@ -130,7 +135,6 @@ const App: React.FC = () => {
         
         if (validation.valid) {
           if (encounteredFileNames.has(file.name)) continue;
-          
           validFiles.push(file);
           encounteredFileNames.add(file.name);
           totalSize += file.size;
@@ -155,7 +159,6 @@ const App: React.FC = () => {
       }));
 
       setRawFiles(raw);
-      
       const analyzed: AnalyzedMetadata[] = [];
       const folders = new Set<string>();
 
@@ -163,10 +166,8 @@ const App: React.FC = () => {
         const file = validFiles[i];
         const relativePath = (file as any).webkitRelativePath || file.name;
         const heuristics = extractHeuristics(relativePath);
-        
         const folderPath = relativePath.split('/').slice(0, -1).join('/') || 'Root';
         folders.add(folderPath);
-
         const parsed = parseArtistTitle(file.name);
         
         try {
@@ -189,7 +190,6 @@ const App: React.FC = () => {
             heuristics: heuristics
           });
         } catch (err) {
-          console.error(`Metadata extraction failed for ${file.name}`, err);
           analyzed.push({
             id: raw[i].id,
             title: parsed.title,
@@ -204,7 +204,7 @@ const App: React.FC = () => {
         }
       }
 
-      const rootFolderName = raw[0]?.relativePath.split('/')[0] || 'Library Root';
+      const rootFolderName = raw[0]?.relativePath.split('/')[0] || 'root';
 
       setAnalyzedMetadata(analyzed);
       setStats({
@@ -216,7 +216,6 @@ const App: React.FC = () => {
         maxFiles: raw.length
       });
 
-      // Save to history
       const newScan: ScanHistory = {
         id: generateId(),
         timestamp: Date.now(),
@@ -247,10 +246,8 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <div className="min-h-screen flex flex-col font-sans bg-charcoal text-white selection:bg-lemon selection:text-charcoal">
-        {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} />}
-        
+        {showOnboarding && <Onboarding onComplete={handleOnboardingComplete} lang={lang} />}
         {isProcessing && <LemonSliceLoader lang={lang} />}
-
         {successMessage && (
           <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[210] animate-in slide-in-from-top-4 duration-300">
             <div className="bg-lemon text-charcoal px-8 py-4 rounded-2xl font-black shadow-2xl flex items-center gap-3 border border-lemon/20">
@@ -283,7 +280,7 @@ const App: React.FC = () => {
                     {t.selectFolderDesc}
                   </p>
                 </div>
-                <FileUploader onFilesSelected={processFiles} isProcessing={isProcessing} />
+                <FileUploader onFilesSelected={processFiles} isProcessing={isProcessing} lang={lang} />
                 <div className="mt-10 flex gap-4 text-[9px] font-black text-gray-600 uppercase tracking-widest">
                   <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-lemon"/> {t.localOnly}</span>
                   <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-lemon"/> {t.aiReady}</span>
@@ -294,12 +291,19 @@ const App: React.FC = () => {
           ) : (
             <div className="flex flex-col gap-8">
               {rawFiles.length > 0 && mode !== AppMode.HISTORY && (
-                <StatsCard stats={stats} lang={lang} isCustomSelection={selectedIds.size > 0 && mode !== AppMode.RAW} />
+                <StatsCard 
+                  stats={stats} 
+                  lang={lang} 
+                  isCustomSelection={selectedIds.size > 0 && mode !== AppMode.RAW} 
+                  isIAMode={mode === AppMode.INTELLIGENCE}
+                  onToggleContext={handleToggleIAContext}
+                  useSelectionIfAvailable={useSelectionIfAvailable}
+                />
               )}
               
               <div className="flex-1 min-h-[700px]">
                 {mode === AppMode.RAW ? (
-                  <RawView files={rawFiles} lang={lang} />
+                  <RawView files={rawFiles} analyzedMetadata={analyzedMetadata} lang={lang} />
                 ) : mode === AppMode.HISTORY ? (
                   <HistoryView history={history} lang={lang} onReopen={reopenScan} />
                 ) : mode === AppMode.ANALYSIS ? (
@@ -312,20 +316,25 @@ const App: React.FC = () => {
                     setSelectedIds={setSelectedIds}
                   />
                 ) : (
-                  <IntelligenceView data={analyzedMetadata} lang={lang} contextData={intelligenceContext} />
+                  <IntelligenceView 
+                    data={analyzedMetadata} 
+                    lang={lang} 
+                    contextData={intelligenceContext} 
+                    useSelectionIfAvailable={useSelectionIfAvailable}
+                  />
                 )}
               </div>
 
               <footer className="flex justify-between items-center py-6 border-t border-white/5 text-[10px] font-black tracking-[0.3em] text-gray-600 uppercase">
                 <span className="flex items-center gap-3">
                   <Music2 size={14} className="text-lemon" />
-                  Lemon_6_Studio_Edition_Stable
+                  {t.stableEdition}
                 </span>
                 
                 <div className="flex items-center gap-4">
                   <span className="flex items-center gap-3">
                     <span className="w-2 h-2 bg-lemon rounded-full animate-pulse shadow-[0_0_8px_#CCFF00]" />
-                    System_Latent_Optimal
+                    {t.systemLatent}
                   </span>
                 </div>
               </footer>

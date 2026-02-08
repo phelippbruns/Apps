@@ -1,46 +1,17 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { ChevronRight, ChevronLeft, Check } from 'lucide-react';
-
-interface Slide {
-  title: string;
-  description: string;
-  icon: string;
-}
-
-const slides: Slide[] = [
-  {
-    title: "Welcome to LEMON 6",
-    description: "The ultimate utility for DJs to map, organize, and analyze high-performance music libraries instantly.",
-    icon: "🍋"
-  },
-  {
-    title: "Step 1: Folder Selection",
-    description: "Point us to your local music directory. We scan subfolders to derive genre heuristics from your organization.",
-    icon: "📂"
-  },
-  {
-    title: "Step 2: Metadata Extraction",
-    description: "Our engine extracts Genre, Artista and high-fidelity tags from supported files in the background.",
-    icon: "⚙️"
-  },
-  {
-    title: "Step 3: Intelligence Mode",
-    description: "Generate professional set transitions or copy library prompts to your favorite AI tools for custom curation.",
-    icon: "🧠"
-  },
-  {
-    title: "Ready to Mix",
-    description: "All analysis is local. No data leaves your machine unless you choose to use external AI providers.",
-    icon: "🎧"
-  }
-];
+import { TRANSLATIONS } from '../translations';
+import { Language } from '../types';
 
 interface OnboardingProps {
   onComplete: () => void;
+  lang: Language;
 }
 
-export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+export const Onboarding: React.FC<OnboardingProps> = ({ onComplete, lang }) => {
+  const t = TRANSLATIONS[lang];
+  const slides = t.onboarding;
   const [current, setCurrent] = useState(0);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -53,7 +24,6 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
     if (current > 0) setCurrent(c => c - 1);
   };
 
-  // Close when clicking outside
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
       onComplete();
@@ -97,7 +67,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
             onClick={onComplete}
             className="text-gray-500 hover:text-white text-sm font-black uppercase tracking-widest transition-colors"
           >
-            Skip
+            {t.skip}
           </button>
           
           <div className="flex gap-4">
@@ -114,9 +84,9 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               className="px-8 h-12 rounded-full bg-lemon text-charcoal font-black flex items-center gap-2 hover:bg-white transition-all transform active:scale-95"
             >
               {current === slides.length - 1 ? (
-                <>LET'S GO <Check size={20} /></>
+                <><span className="uppercase tracking-widest">{t.letsGo}</span> <Check size={20} /></>
               ) : (
-                <>NEXT <ChevronRight size={20} /></>
+                <><span className="uppercase tracking-widest">{t.next}</span> <ChevronRight size={20} /></>
               )}
             </button>
           </div>

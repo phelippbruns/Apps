@@ -63,7 +63,7 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
           <button 
             onClick={onShowOnboarding}
             className="p-2.5 rounded-xl border border-white/10 text-lemon hover:bg-lemon/10 transition-all group"
-            title="App Info"
+            title={t.infoTooltip}
           >
             <Info size={20} className="group-hover:scale-110 transition-transform" />
           </button>
@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
           <button 
             onClick={() => setShowSecurityModal(true)}
             className="p-2.5 rounded-xl border border-white/10 text-lemon hover:bg-lemon/10 transition-all group"
-            title="Security & Privacy"
+            title={t.securityTooltip}
           >
             <Lock size={20} className="group-hover:scale-110 transition-transform" />
           </button>
@@ -115,7 +115,7 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
           </div>
 
           <div className="hidden lg:flex items-center gap-4 text-[10px] font-black tracking-[0.2em] text-gray-500 bg-white/5 px-4 py-2 rounded-full border border-white/5">
-            <span>V1.2.3 MVP</span>
+            <span>V1.2.5 MVP</span>
             <div className="w-2 h-2 rounded-full bg-lemon animate-pulse shadow-[0_0_8px_#CCFF00]" />
           </div>
         </div>

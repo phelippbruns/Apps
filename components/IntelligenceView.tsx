@@ -2,19 +2,24 @@
 import React, { useState } from 'react';
 import { AnalyzedMetadata, Language } from '../types';
 import { PromptModal } from './PromptModal';
-import { Sparkles, Library, Zap, Activity, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Sparkles, Library, Zap, Activity } from 'lucide-react';
 import { TRANSLATIONS } from '../translations';
 
 interface IntelligenceViewProps {
   data: AnalyzedMetadata[];
   lang: Language;
   contextData?: AnalyzedMetadata[] | null;
+  useSelectionIfAvailable: boolean;
 }
 
-export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, lang, contextData }) => {
+export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ 
+  data, 
+  lang, 
+  contextData,
+  useSelectionIfAvailable 
+}) => {
   const t = TRANSLATIONS[lang];
   const [activePrompt, setActivePrompt] = useState<{ title: string; prompt: string; showAllShortcuts?: boolean } | null>(null);
-  const [useSelectionIfAvailable, setUseSelectionIfAvailable] = useState(true);
 
   const effectiveData = (useSelectionIfAvailable && contextData && contextData.length > 0) ? contextData : data;
 
@@ -68,28 +73,28 @@ export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, lang, 
   const features = [
     { 
       title: t.criarPlaylist, 
-      desc: "Curate a specialized track sequence", 
+      desc: t.featPlaylistDesc, 
       icon: <Library size={32} />, 
       handler: handlePlaylistPrompt,
       color: "lemon"
     },
     { 
       title: t.discoverTracks, 
-      desc: "Find matching music for your vibe", 
+      desc: t.featDiscoveryDesc, 
       icon: <Sparkles size={32} />, 
       handler: handleDiscoveryPrompt,
       color: "blue-500"
     },
     { 
       title: t.generateSetFlow, 
-      desc: "Warm-up to Peak time organization", 
+      desc: t.featSetFlowDesc, 
       icon: <Activity size={32} />, 
       handler: handleSetFlowPrompt,
       color: "purple-500"
     },
     { 
       title: t.setBuilder, 
-      desc: "Transition compatible pairs & set structure", 
+      desc: t.featSetBuilderDesc, 
       icon: <Zap size={32} />, 
       handler: handleSetBuilderPrompt,
       color: "orange-500"
@@ -100,20 +105,6 @@ export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, lang, 
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-6 animate-in fade-in duration-500 flex flex-col items-center">
-      <div className="text-center mb-10 space-y-4">
-        {hasSelection && (
-          <button 
-            onClick={() => setUseSelectionIfAvailable(!useSelectionIfAvailable)}
-            className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-6 py-2 hover:bg-white/10 transition-all group"
-          >
-            {useSelectionIfAvailable ? <ToggleRight className="text-lemon" /> : <ToggleLeft className="text-gray-500" />}
-            <span className={`text-[10px] font-black uppercase tracking-widest ${useSelectionIfAvailable ? 'text-lemon' : 'text-gray-500'}`}>
-              {useSelectionIfAvailable ? t.useSelection : t.useTotal}
-            </span>
-          </button>
-        )}
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
         {features.map((f, i) => (
           <button 
@@ -140,8 +131,8 @@ export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, lang, 
         <div className="inline-block px-5 py-2 rounded-full bg-lemon/10 border border-lemon/20">
            <span className="text-lemon font-black text-[10px] uppercase tracking-widest">
              {useSelectionIfAvailable && hasSelection 
-               ? `(Using ${contextData.length} selected tracks - ${t.customSelection})` 
-               : `(Analyzing total library: ${data.length} tracks - ${t.topFolder})`}
+               ? `(${t.useSelection}: ${contextData.length} tracks - ${t.customSelection})` 
+               : `(${t.useTotal}: ${data.length} tracks - ${t.highestTrackCount})`}
            </span>
         </div>
       </div>
