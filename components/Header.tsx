@@ -11,10 +11,11 @@ interface HeaderProps {
   onShowOnboarding: () => void;
   lang: Language;
   setLang: (lang: Language) => void;
-  disabledTabs: boolean;
+  hasFiles: boolean;
+  hasHistory: boolean;
 }
 
-export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOnboarding, lang, setLang, disabledTabs }) => {
+export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOnboarding, lang, setLang, hasFiles, hasHistory }) => {
   const t = TRANSLATIONS[lang];
   const [showLangMenu, setShowLangMenu] = useState(false);
 
@@ -34,8 +35,9 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
         <nav className="flex bg-black/40 p-1 rounded-xl border border-white/5">
           {[
             { id: AppMode.RAW, label: t.raw, disabled: false },
-            { id: AppMode.ANALYSIS, label: t.myTracks, disabled: disabledTabs },
-            { id: AppMode.INTELLIGENCE, label: t.intelligence, disabled: disabledTabs }
+            { id: AppMode.HISTORY, label: t.lastScans, disabled: !hasHistory },
+            { id: AppMode.ANALYSIS, label: t.myTracks, disabled: !hasFiles },
+            { id: AppMode.INTELLIGENCE, label: t.intelligence, disabled: !hasFiles }
           ].map(m => (
             <button
               key={m.id}
@@ -44,7 +46,7 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
               className={`px-6 py-2 rounded-lg text-xs font-black tracking-widest transition-all ${
                 mode === m.id 
                   ? 'bg-lemon text-charcoal shadow-2xl scale-105' 
-                  : m.disabled ? 'text-gray-700 cursor-not-allowed' : 'text-gray-500 hover:text-white'
+                  : m.disabled ? 'text-gray-700 cursor-not-allowed opacity-50' : 'text-gray-500 hover:text-white'
               }`}
             >
               {m.label}

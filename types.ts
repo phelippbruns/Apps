@@ -1,6 +1,7 @@
 
 export enum AppMode {
   RAW = 'RAW',
+  HISTORY = 'HISTORY',
   ANALYSIS = 'ANALYSIS',
   INTELLIGENCE = 'INTELLIGENCE'
 }

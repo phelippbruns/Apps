@@ -6,12 +6,13 @@ import { FileUploader } from './components/FileUploader';
 import { RawView } from './components/RawView';
 import { AnalysisView } from './components/AnalysisView';
 import { IntelligenceView } from './components/IntelligenceView';
+import { HistoryView } from './components/HistoryView';
 import { StatsCard } from './components/StatsCard';
 import { Onboarding } from './components/Onboarding';
 import { LemonSliceLoader } from './components/LemonSliceLoader';
 import { AppMode, RawFile, AnalyzedMetadata, AppStats, Language, ScanHistory } from './types';
 import { isMusicFile, extractHeuristics, parseArtistTitle } from './utils';
-import { Music2, Clock, CheckCircle2 } from 'lucide-react';
+import { Music2, CheckCircle2 } from 'lucide-react';
 import { TRANSLATIONS } from './translations';
 
 const App: React.FC = () => {
@@ -131,7 +132,7 @@ const App: React.FC = () => {
           title: metadata.common.title || parsed.title,
           artist: metadata.common.artist || parsed.artist,
           album: metadata.common.album,
-          genre: metadata.common.genre, // Real genre extraction
+          genre: metadata.common.genre,
           year: metadata.common.year,
           bpm: metadata.common.bpm,
           duration: metadata.format.duration,
@@ -148,7 +149,7 @@ const App: React.FC = () => {
           id: Math.random().toString(36).substr(2, 9),
           title: parsed.title,
           artist: parsed.artist,
-          genre: undefined, // Empty if missing
+          genre: undefined,
           format: file.name.split('.').pop()?.toUpperCase() || '???',
           fileSize: file.size,
           fileName: file.name,
@@ -225,61 +226,41 @@ const App: React.FC = () => {
         onShowOnboarding={() => setShowOnboarding(true)}
         lang={lang}
         setLang={changeLanguage}
-        disabledTabs={rawFiles.length === 0}
+        hasFiles={rawFiles.length > 0}
+        hasHistory={history.length > 0}
       />
       
-      <main className="flex-1 p-8 lg:p-12 max-w-[1600px] mx-auto w-full flex flex-col gap-10">
-        {rawFiles.length === 0 ? (
-          <div className="flex-1 flex flex-col gap-10 animate-in fade-in duration-700">
-            <div className="flex flex-col items-center justify-center py-20">
-              <div className="text-center mb-16 space-y-4">
-                <h1 className="text-6xl font-black tracking-tightest text-white uppercase drop-shadow-2xl">
+      <main className="flex-1 p-6 lg:p-8 max-w-[1600px] mx-auto w-full flex flex-col gap-8">
+        {mode === AppMode.RAW && rawFiles.length === 0 ? (
+          <div className="flex-1 flex flex-col gap-8 animate-in fade-in duration-700">
+            <div className="flex flex-col items-center justify-center pt-8 pb-12">
+              <div className="text-center mb-10 space-y-3">
+                <h1 className="text-5xl font-black tracking-tightest text-white uppercase drop-shadow-2xl">
                   {t.readyToMap} <span className="text-lemon">{t.library}</span>
                 </h1>
-                <p className="text-gray-400 text-xl font-medium max-w-2xl mx-auto">
+                <p className="text-gray-400 text-lg font-medium max-w-2xl mx-auto opacity-80">
                   {t.selectFolderDesc}
                 </p>
               </div>
               <FileUploader onFilesSelected={processFiles} isProcessing={isProcessing} />
-              <div className="mt-16 flex gap-12 text-[10px] font-black text-gray-600 uppercase tracking-widest">
+              <div className="mt-10 flex gap-10 text-[9px] font-black text-gray-600 uppercase tracking-widest">
                 <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-lemon"/> {t.localOnly}</span>
                 <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-lemon"/> {t.aiReady}</span>
                 <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-lemon"/> {t.recursive}</span>
               </div>
             </div>
-
-            {history.length > 0 && (
-               <div className="bg-darkgray p-8 rounded-3xl border border-white/5 space-y-6">
-                 <h3 className="text-white font-black text-sm uppercase tracking-widest flex items-center gap-3">
-                   <Clock size={16} /> {t.lastScans}
-                 </h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                   {history.map(scan => (
-                     <div 
-                       key={scan.id} 
-                       onClick={() => reopenScan(scan.id)}
-                       className="bg-white/5 border border-white/5 p-6 rounded-2xl hover:border-lemon/30 transition-all cursor-pointer group"
-                     >
-                       <p className="text-white font-black text-lg mb-1 truncate">{scan.folderName}</p>
-                       <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-4">
-                         {scan.fileCount} TRACKS
-                       </p>
-                       <button className="w-full py-3 rounded-xl bg-white/5 group-hover:bg-lemon group-hover:text-charcoal text-[10px] font-black uppercase tracking-widest transition-all">
-                         {t.reopen}
-                       </button>
-                     </div>
-                   ))}
-                 </div>
-               </div>
-            )}
           </div>
         ) : (
-          <div className="flex flex-col gap-10">
-            <StatsCard stats={stats} lang={lang} />
+          <div className="flex flex-col gap-8">
+            {rawFiles.length > 0 && mode !== AppMode.HISTORY && (
+              <StatsCard stats={stats} lang={lang} />
+            )}
             
             <div className="flex-1 min-h-[700px]">
               {mode === AppMode.RAW ? (
-                <RawView files={rawFiles} history={history} lang={lang} onReopen={reopenScan} />
+                <RawView files={rawFiles} lang={lang} />
+              ) : mode === AppMode.HISTORY ? (
+                <HistoryView history={history} lang={lang} onReopen={reopenScan} />
               ) : mode === AppMode.ANALYSIS ? (
                 <AnalysisView data={analyzedMetadata} lang={lang} rawFiles={rawFiles} />
               ) : (
