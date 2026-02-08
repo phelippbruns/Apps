@@ -76,6 +76,31 @@ export const TRANSLATIONS = {
     featDiscoveryDesc: "Find matching music for your vibe",
     featSetFlowDesc: "Warm-up to Peak time organization",
     featSetBuilderDesc: "Transition compatible pairs & set structure",
+    securityModal: {
+      title: "Security & Privacy",
+      dataSafeTitle: "Your Data is Safe",
+      dataSafeDesc: "LEMON 6 operates entirely in your browser. No data is uploaded to external servers. All file scanning and analysis happens locally on your device.",
+      accessTitle: "What We Access",
+      accessList: [
+        "Read-only access to audio files you select",
+        "File metadata (title, artist, album, etc.)",
+        "Browser local storage for preferences"
+      ],
+      notDoTitle: "What We Don't Do",
+      notDoList: [
+        "No data collection or tracking",
+        "No external API calls",
+        "No cloud uploads or storage",
+        "No sharing of library info"
+      ],
+      fileSecurityTitle: "File Security",
+      fileSecurityDesc: "Only audio files are processed (.mp3, .flac, .wav, .m4a, .aac). File size is limited to 500MB per file. Metadata is sanitized. Original files are never modified.",
+      localStorageTitle: "Local Storage",
+      localStorageDesc: "Preferences stored locally in your browser. Clear browser data to remove all LEMON 6 information. No server-side backups exist.",
+      openSourceTitle: "Open Source",
+      openSourceDesc: "This project is privacy-first and transparent. You can review the source code to verify our local-only processing claims.",
+      footer: "Privacy First • Local Only • Secured"
+    },
     onboarding: [
       { title: "Welcome to LEMON 6", description: "The ultimate utility for DJs to map, organize, and analyze high-performance music libraries instantly.", icon: "🍋" },
       { title: "Step 1: Folder Selection", description: "Point us to your local music directory. We scan subfolders to derive genre heuristics from your organization.", icon: "📂" },
@@ -160,6 +185,31 @@ export const TRANSLATIONS = {
     featDiscoveryDesc: "Encontre músicas que combinam com sua vibe",
     featSetFlowDesc: "Organização de Warm-up a Peak time",
     featSetBuilderDesc: "Transição de pares compatíveis e estrutura de set",
+    securityModal: {
+      title: "Segurança e Privacidade",
+      dataSafeTitle: "Seus Dados Estão Seguros",
+      dataSafeDesc: "O LEMON 6 opera inteiramente no seu navegador. Nenhum dado é enviado para servidores externos. Toda a varredura e análise de arquivos ocorre localmente no seu dispositivo.",
+      accessTitle: "O Que Acessamos",
+      accessList: [
+        "Acesso somente leitura aos arquivos de áudio selecionados",
+        "Metadados dos arquivos (título, artista, álbum, etc.)",
+        "Armazenamento local do navegador para preferências"
+      ],
+      notDoTitle: "O Que Não Fazemos",
+      notDoList: [
+        "Sem coleta de dados ou rastreamento",
+        "Sem chamadas de API externas",
+        "Sem uploads ou armazenamento na nuvem",
+        "Sem compartilhamento de informações da biblioteca"
+      ],
+      fileSecurityTitle: "Segurança de Arquivos",
+      fileSecurityDesc: "Apenas arquivos de áudio são processados (.mp3, .flac, .wav, .m4a, .aac). O tamanho do arquivo é limitado a 500MB por arquivo. Os metadados são higienizados. Os arquivos originais nunca são modificados.",
+      localStorageTitle: "Armazenamento Local",
+      localStorageDesc: "Preferências armazenadas localmente no seu navegador. Limpe os dados do navegador para remover todas as informações do LEMON 6. Não existem backups no servidor.",
+      openSourceTitle: "Código Aberto",
+      openSourceDesc: "Este projeto prioriza a privacidade e é transparente. Você pode revisar o código-fonte para verificar nossas alegações de processamento local.",
+      footer: "Privacidade Primeiro • Local • Seguro"
+    },
     onboarding: [
       { title: "Bem-vindo ao LEMON 6", description: "O utilitário definitivo para DJs mapearem, organizarem e analisarem bibliotecas de música de alto desempenho instantaneamente.", icon: "🍋" },
       { title: "Passo 1: Seleção de Pasta", description: "Aponte para seu diretório local de música. Varremos subpastas para derivar heurísticas de gênero da sua organização.", icon: "📂" },
@@ -184,7 +234,7 @@ export const TRANSLATIONS = {
     noHistory: "No hay historial de escaneo disponible.",
     reopen: "Reabrir",
     downloadTxt: "DESCARGAR .TXT",
-    copyAll: "COPIAR TUDO",
+    copyAll: "COPIAR TODO",
     rawListing: "Listado de Discografía Bruta",
     tracksMapped: "pistas mapeadas",
     totalTracks: "Total de Pistas",
@@ -244,6 +294,31 @@ export const TRANSLATIONS = {
     featDiscoveryDesc: "Encuentra música que combine con tu vibra",
     featSetFlowDesc: "Organización de Warm-up a Peak time",
     featSetBuilderDesc: "Transición de pares compatibles y estructura de set",
+    securityModal: {
+      title: "Seguridad y Privacidad",
+      dataSafeTitle: "Sus Datos Están Seguros",
+      dataSafeDesc: "LEMON 6 funciona completamente en su navegador. No se cargan datos a servidores externos. Todo el escaneo y análisis de archivos ocurre localmente en su dispositivo.",
+      accessTitle: "Lo Que Accedemos",
+      accessList: [
+        "Acceso de solo lectura a los archivos de audio seleccionados",
+        "Metadatos del archivo (título, artista, álbum, etc.)",
+        "Almacenamiento local del navegador para preferencias"
+      ],
+      notDoTitle: "Lo Que No Hacemos",
+      notDoList: [
+        "Sin recolección de datos ni seguimiento",
+        "Sin llamadas a API externas",
+        "Sin cargas ni almacenamiento en la nube",
+        "Sin compartir información de la biblioteca"
+      ],
+      fileSecurityTitle: "Seguridad de Archivos",
+      fileSecurityDesc: "Solo se procesan archivos de audio (.mp3, .flac, .wav, .m4a, .aac). El tamaño del archivo está limitado a 500MB por archivo. Los metadados se sanean. Los archivos originales nunca se modifican.",
+      localStorageTitle: "Almacenamiento Local",
+      localStorageDesc: "Preferencias almacenadas localmente en su navegador. Borre los datos del navegador para eliminar toda la información de LEMON 6. No existen copias de seguridad en el servidor.",
+      openSourceTitle: "Código Abierto",
+      openSourceDesc: "Este proyecto prioriza la privacidad y es transparente. Puede revisar el código fuente para verificar nuestras afirmaciones de procesamiento local.",
+      footer: "Privacidad Primero • Local • Seguro"
+    },
     onboarding: [
       { title: "Bienvenido a LEMON 6", description: "La utilidad definitiva para que los DJs mapeen, organicen y analicen bibliotecas de música de alto rendimiento al instante.", icon: "🍋" },
       { title: "Paso 1: Selección de Carpeta", description: "Indícanos tu directorio local de música. Escaneamos subcarpetas para derivar heurísticas de género de tu organización.", icon: "📂" },

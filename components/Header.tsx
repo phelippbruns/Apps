@@ -85,9 +85,6 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
               className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 text-lemon hover:bg-lemon/10 transition-all group"
             >
               <Globe size={20} className="group-hover:rotate-12 transition-transform" />
-              <span className="text-[10px] font-black uppercase tracking-tighter hidden md:inline">
-                {lang.toUpperCase()}
-              </span>
               <ChevronDown size={14} className={`transition-transform duration-200 ${showLangMenu ? 'rotate-180' : ''}`} />
             </button>
 
