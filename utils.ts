@@ -1,6 +1,25 @@
 
 import { RawFile, AnalyzedMetadata, HeuristicSignal, AIProvider } from './types';
-import { GoogleGenAI, Type } from "@google/genai";
+
+/**
+ * Safely generates a unique ID checking for crypto support
+ */
+export const generateId = (): string => {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2, 11) + Date.now().toString(36);
+};
+
+/**
+ * Sanitizes strings to prevent basic XSS and injection
+ */
+export const sanitizeString = (str: string | undefined): string => {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+};
 
 export const formatBytes = (bytes: number, decimals = 2) => {
   if (bytes === 0) return '0 Bytes';
@@ -55,7 +74,22 @@ export const downloadCsv = (data: AnalyzedMetadata[]) => {
 
 export const isMusicFile = (fileName: string) => {
   const ext = fileName.toLowerCase().split('.').pop();
-  return ['mp3', 'wav', 'flac', 'aiff', 'm4a', 'ogg'].includes(ext || '');
+  return ['mp3', 'wav', 'flac', 'aiff', 'm4a', 'aac', 'ogg'].includes(ext || '');
+};
+
+/**
+ * Validates a file before processing
+ * Checks size (max 500MB) and music extension
+ */
+export const validateFile = (file: File): { valid: boolean; error?: string } => {
+  const maxSize = 500 * 1024 * 1024; // 500MB
+  if (file.size > maxSize) {
+    return { valid: false, error: 'File size exceeds 500MB limit' };
+  }
+  if (!isMusicFile(file.name)) {
+    return { valid: false, error: 'Unsupported file format' };
+  }
+  return { valid: true };
 };
 
 export const extractHeuristics = (path: string): HeuristicSignal[] => {
@@ -63,7 +97,7 @@ export const extractHeuristics = (path: string): HeuristicSignal[] => {
   parts.pop();
   return parts.map((part, index) => ({
     level: index,
-    value: part,
+    value: sanitizeString(part),
     source: 'folder_name' as const
   }));
 };
@@ -88,7 +122,10 @@ export const parseArtistTitle = (fileName: string) => {
     artist = artist.replace(/[_\.]/g, ' ').trim();
   }
 
-  return { artist, title };
+  return { 
+    artist: sanitizeString(artist), 
+    title: sanitizeString(title) 
+  };
 };
 
 export const generateExternalAIPrompt = (provider: AIProvider, libraryText: string, intent: string) => {

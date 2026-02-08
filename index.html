@@ -5,8 +5,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LEMON 6 | DJ Library Utility</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react/": "https://esm.sh/react@19.0.0/",
+    "@google/genai": "https://esm.sh/@google/genai@1.40.0",
+    "lucide-react": "https://esm.sh/lucide-react@0.475.0",
+    "music-metadata-browser": "https://esm.sh/music-metadata-browser@2.5.11",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.3",
+    "vite": "https://esm.sh/vite@^7.3.1"
+  }
+}
+</script>
+
     <script>
       tailwind.config = {
         theme: {
@@ -29,6 +48,7 @@
         background-color: #1a1a1a;
         color: #ffffff;
         font-family: 'Inter', sans-serif;
+        margin: 0;
       }
       ::-webkit-scrollbar {
         width: 8px;
@@ -44,30 +64,14 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #CCFF00;
       }
-      /* Custom selection color */
       ::selection {
         background: #CCFF00;
         color: #000;
       }
     </style>
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.40.0",
-    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
-    "music-metadata-browser": "https://esm.sh/music-metadata-browser@^2.5.11",
-    "vite": "https://esm.sh/vite@^7.3.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.3"
-  }
-}
-</script>
 </head>
 <body>
     <div id="root"></div>
-    <!-- Entry point for Vite production build using relative path -->
     <script type="module" src="./index.tsx"></script>
 </body>
 </html>

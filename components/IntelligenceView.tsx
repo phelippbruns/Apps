@@ -93,10 +93,10 @@ export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, lang }
   ];
 
   return (
-    <div className="max-w-6xl mx-auto py-16 px-6 animate-in fade-in duration-500">
-      <div className="text-center mb-16 space-y-4">
-        <h2 className="text-4xl font-black text-white uppercase tracking-tighter italic">{t.intelligenceMode}</h2>
-        <p className="text-gray-500 max-w-xl mx-auto font-medium">
+    <div className="max-w-6xl mx-auto py-8 px-6 animate-in fade-in duration-500">
+      <div className="text-center mb-10 space-y-2">
+        <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic">{t.intelligenceMode}</h2>
+        <p className="text-gray-500 max-w-lg mx-auto font-medium text-xs">
           {t.intelligenceDesc}
         </p>
       </div>
