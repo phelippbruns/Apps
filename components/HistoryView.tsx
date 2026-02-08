@@ -61,7 +61,7 @@ export const HistoryView: React.FC<HistoryViewProps> = ({ history, lang, onReope
                   {scan.fileCount.toLocaleString()} {t.tracksMapped}
                 </p>
 
-                <button className="mt-auto w-full py-3.5 rounded-2xl bg-white/5 group-hover:bg-lemon group-hover:text-charcoal text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+                <button className="mt-auto w-full py-3.5 rounded-2xl bg-lemon text-charcoal text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 hover:bg-white active:scale-95 shadow-lg">
                   {t.reopen}
                 </button>
               </div>

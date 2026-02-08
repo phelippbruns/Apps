@@ -1,8 +1,8 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { RawFile, Language } from '../types';
-import { downloadTxt, formatBytes } from '../utils';
-import { Download, FileText } from 'lucide-react';
+import { downloadTxt, formatBytes, getRawDiscographyText } from '../utils';
+import { Download, FileText, Copy, Check } from 'lucide-react';
 import { TRANSLATIONS } from '../translations';
 
 interface RawViewProps {
@@ -12,6 +12,14 @@ interface RawViewProps {
 
 export const RawView: React.FC<RawViewProps> = ({ files, lang }) => {
   const t = TRANSLATIONS[lang];
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    const text = getRawDiscographyText(files);
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="max-w-6xl mx-auto animate-in fade-in duration-500">
@@ -25,13 +33,24 @@ export const RawView: React.FC<RawViewProps> = ({ files, lang }) => {
             <h3 className="font-black text-sm uppercase tracking-widest">{t.rawListing}</h3>
           </div>
           {files.length > 0 && (
-            <button 
-              onClick={() => downloadTxt(files)}
-              className="flex items-center gap-2 px-6 py-3 bg-lemon text-charcoal text-xs font-black rounded-xl hover:bg-white transition-all transform active:scale-95 shadow-xl shadow-lemon/10"
-            >
-              <Download size={14} />
-              {t.downloadTxt}
-            </button>
+            <div className="flex gap-3">
+              <button 
+                onClick={handleCopy}
+                className={`flex items-center gap-2 px-6 py-3 text-xs font-black rounded-xl transition-all transform active:scale-95 shadow-xl ${
+                  copied ? 'bg-green-500 text-white' : 'bg-white/5 text-white hover:bg-white/10'
+                }`}
+              >
+                {copied ? <Check size={14} /> : <Copy size={14} />}
+                {t.copyAll}
+              </button>
+              <button 
+                onClick={() => downloadTxt(files)}
+                className="flex items-center gap-2 px-6 py-3 bg-lemon text-charcoal text-xs font-black rounded-xl hover:bg-white transition-all transform active:scale-95 shadow-xl shadow-lemon/10"
+              >
+                <Download size={14} />
+                {t.downloadTxt}
+              </button>
+            </div>
           )}
         </div>
 

@@ -2,15 +2,16 @@
 import React from 'react';
 import { AppStats, Language } from '../types';
 import { formatBytes } from '../utils';
-import { Database, Files, Layers, Folder, BarChart3 } from 'lucide-react';
+import { Database, Files, Layers, Folder, BarChart3, Target } from 'lucide-react';
 import { TRANSLATIONS } from '../translations';
 
 interface StatsCardProps {
   stats: AppStats;
   lang: Language;
+  isCustomSelection?: boolean;
 }
 
-export const StatsCard: React.FC<StatsCardProps> = ({ stats, lang }) => {
+export const StatsCard: React.FC<StatsCardProps> = ({ stats, lang, isCustomSelection }) => {
   const t = TRANSLATIONS[lang];
 
   return (
@@ -39,31 +40,31 @@ export const StatsCard: React.FC<StatsCardProps> = ({ stats, lang }) => {
 
       {/* Bottom Section - More compact */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="bg-darkgray px-4 py-2.5 rounded-2xl border border-white/5 flex items-center gap-3 shadow-lg group hover:border-blue-500/20 transition-all">
-          <div className="w-7 h-7 rounded-lg bg-blue-500/5 flex items-center justify-center group-hover:bg-blue-500/10 transition-colors">
-            <Database className="text-blue-500" size={14} />
+        <div className="bg-darkgray px-4 py-2.5 rounded-2xl border border-white/5 flex items-center gap-3 shadow-lg group hover:border-lemon/20 transition-all">
+          <div className="w-7 h-7 rounded-lg bg-lemon/5 flex items-center justify-center group-hover:bg-lemon/10 transition-colors">
+            <Database className="text-lemon" size={14} />
           </div>
           <div>
             <p className="text-[7px] text-gray-500 font-black uppercase tracking-[0.2em] mb-0.5">{t.diskUsage}</p>
             <p className="text-xs font-black text-white">{formatBytes(stats.totalSize)}</p>
           </div>
         </div>
-        <div className="bg-darkgray px-4 py-2.5 rounded-2xl border border-white/5 flex items-center gap-3 shadow-lg group hover:border-purple-500/20 transition-all">
-          <div className="w-7 h-7 rounded-lg bg-purple-500/5 flex items-center justify-center group-hover:bg-purple-500/10 transition-colors">
-            <Folder className="text-purple-500" size={14} />
+        <div className="bg-darkgray px-4 py-2.5 rounded-2xl border border-white/5 flex items-center gap-3 shadow-lg group hover:border-lemon/20 transition-all">
+          <div className="w-7 h-7 rounded-lg bg-lemon/5 flex items-center justify-center group-hover:bg-lemon/10 transition-colors">
+            <Folder className="text-lemon" size={14} />
           </div>
           <div>
             <p className="text-[7px] text-gray-500 font-black uppercase tracking-[0.2em] mb-0.5">{t.totalFolders}</p>
             <p className="text-xs font-black text-white">{stats.totalFolders.toLocaleString()}</p>
           </div>
         </div>
-        <div className="bg-darkgray px-4 py-2.5 rounded-2xl border border-white/5 flex items-center gap-3 shadow-lg group hover:border-orange-500/20 transition-all">
-          <div className="w-7 h-7 rounded-lg bg-orange-500/5 flex items-center justify-center group-hover:bg-orange-500/10 transition-colors">
-            <BarChart3 className="text-orange-500" size={14} />
+        <div className="bg-darkgray px-4 py-2.5 rounded-2xl border border-white/5 flex items-center gap-3 shadow-lg group hover:border-lemon/20 transition-all">
+          <div className="w-7 h-7 rounded-lg bg-lemon/5 flex items-center justify-center group-hover:bg-lemon/10 transition-colors">
+            {isCustomSelection ? <Target className="text-lemon" size={14} /> : <BarChart3 className="text-lemon" size={14} />}
           </div>
           <div className="min-w-0">
-            <p className="text-[7px] text-gray-500 font-black uppercase tracking-[0.2em] mb-0.5">{t.highestTrackCount}</p>
-            <p className="text-xs font-black text-white truncate">{stats.topFolder} ({stats.maxFiles})</p>
+            <p className="text-[7px] text-gray-500 font-black uppercase tracking-[0.2em] mb-0.5">{isCustomSelection ? t.customSelection : t.highestTrackCount}</p>
+            <p className="text-xs font-black text-white truncate">{isCustomSelection ? t.customSelection : stats.topFolder}</p>
           </div>
         </div>
       </div>

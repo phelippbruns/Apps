@@ -38,9 +38,9 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
           <nav className="flex bg-black/40 p-1 rounded-xl border border-white/5">
             {[
               { id: AppMode.RAW, label: t.raw, disabled: false },
-              { id: AppMode.HISTORY, label: t.lastScans, disabled: !hasHistory },
               { id: AppMode.ANALYSIS, label: t.myTracks, disabled: !hasFiles },
-              { id: AppMode.INTELLIGENCE, label: t.intelligence, disabled: !hasFiles }
+              { id: AppMode.INTELLIGENCE, label: t.intelligence, disabled: !hasFiles },
+              { id: AppMode.HISTORY, label: t.lastScans, disabled: !hasHistory }
             ].map(m => (
               <button
                 key={m.id}
@@ -62,7 +62,7 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
           {/* Info Button - First */}
           <button 
             onClick={onShowOnboarding}
-            className="p-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-lemon hover:border-lemon/50 transition-all group"
+            className="p-2.5 rounded-xl border border-white/10 text-lemon hover:bg-lemon/10 transition-all group"
             title="App Info"
           >
             <Info size={20} className="group-hover:scale-110 transition-transform" />
@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
           {/* Security Modal Trigger - Second */}
           <button 
             onClick={() => setShowSecurityModal(true)}
-            className="p-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-lemon hover:border-lemon/50 transition-all group"
+            className="p-2.5 rounded-xl border border-white/10 text-lemon hover:bg-lemon/10 transition-all group"
             title="Security & Privacy"
           >
             <Lock size={20} className="group-hover:scale-110 transition-transform" />
@@ -82,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
             <button 
               onClick={() => setShowLangMenu(!showLangMenu)}
               onBlur={() => setTimeout(() => setShowLangMenu(false), 200)}
-              className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 text-gray-400 hover:text-lemon hover:border-lemon/50 transition-all group"
+              className="flex items-center gap-2 p-2.5 rounded-xl border border-white/10 text-lemon hover:bg-lemon/10 transition-all group"
             >
               <Globe size={20} className="group-hover:rotate-12 transition-transform" />
               <span className="text-[10px] font-black uppercase tracking-tighter hidden md:inline">
@@ -115,7 +115,7 @@ export const Header: React.FC<HeaderProps> = ({ mode, setMode, onReset, onShowOn
           </div>
 
           <div className="hidden lg:flex items-center gap-4 text-[10px] font-black tracking-[0.2em] text-gray-500 bg-white/5 px-4 py-2 rounded-full border border-white/5">
-            <span>V1.5.0_PRO_READY</span>
+            <span>V1.2.3 MVP</span>
             <div className="w-2 h-2 rounded-full bg-lemon animate-pulse shadow-[0_0_8px_#CCFF00]" />
           </div>
         </div>

@@ -2,22 +2,26 @@
 import React, { useState } from 'react';
 import { AnalyzedMetadata, Language } from '../types';
 import { PromptModal } from './PromptModal';
-import { Sparkles, Library, Zap, Activity } from 'lucide-react';
+import { Sparkles, Library, Zap, Activity, ToggleLeft, ToggleRight } from 'lucide-react';
 import { TRANSLATIONS } from '../translations';
 
 interface IntelligenceViewProps {
   data: AnalyzedMetadata[];
   lang: Language;
+  contextData?: AnalyzedMetadata[] | null;
 }
 
-export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, lang }) => {
+export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, lang, contextData }) => {
   const t = TRANSLATIONS[lang];
   const [activePrompt, setActivePrompt] = useState<{ title: string; prompt: string; showAllShortcuts?: boolean } | null>(null);
+  const [useSelectionIfAvailable, setUseSelectionIfAvailable] = useState(true);
+
+  const effectiveData = (useSelectionIfAvailable && contextData && contextData.length > 0) ? contextData : data;
 
   // Deduplicate for prompt list
   const dedupedTracks = (() => {
     const seen = new Set<string>();
-    return data.filter(item => {
+    return effectiveData.filter(item => {
       const artist = (item.artist || 'Unknown Artist').toLowerCase().trim();
       const title = (item.title || item.fileName.split('.')[0]).toLowerCase().trim();
       const key = `${artist}-${title}`;
@@ -92,16 +96,25 @@ export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, lang }
     }
   ];
 
+  const hasSelection = contextData && contextData.length > 0;
+
   return (
-    <div className="max-w-6xl mx-auto py-8 px-6 animate-in fade-in duration-500">
-      <div className="text-center mb-10 space-y-2">
-        <h2 className="text-2xl font-black text-white uppercase tracking-tighter italic">{t.intelligenceMode}</h2>
-        <p className="text-gray-500 max-w-lg mx-auto font-medium text-xs">
-          {t.intelligenceDesc}
-        </p>
+    <div className="max-w-6xl mx-auto py-8 px-6 animate-in fade-in duration-500 flex flex-col items-center">
+      <div className="text-center mb-10 space-y-4">
+        {hasSelection && (
+          <button 
+            onClick={() => setUseSelectionIfAvailable(!useSelectionIfAvailable)}
+            className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-6 py-2 hover:bg-white/10 transition-all group"
+          >
+            {useSelectionIfAvailable ? <ToggleRight className="text-lemon" /> : <ToggleLeft className="text-gray-500" />}
+            <span className={`text-[10px] font-black uppercase tracking-widest ${useSelectionIfAvailable ? 'text-lemon' : 'text-gray-500'}`}>
+              {useSelectionIfAvailable ? t.useSelection : t.useTotal}
+            </span>
+          </button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
         {features.map((f, i) => (
           <button 
             key={i}
@@ -118,6 +131,19 @@ export const IntelligenceView: React.FC<IntelligenceViewProps> = ({ data, lang }
             <div className={`absolute inset-0 border-2 border-${f.color} opacity-0 group-hover:opacity-20 rounded-3xl transition-opacity`} />
           </button>
         ))}
+      </div>
+
+      <div className="text-center mt-12 space-y-4 opacity-80">
+        <p className="text-gray-400 max-w-lg mx-auto font-medium text-xs leading-relaxed">
+          {t.intelligenceDesc}
+        </p>
+        <div className="inline-block px-5 py-2 rounded-full bg-lemon/10 border border-lemon/20">
+           <span className="text-lemon font-black text-[10px] uppercase tracking-widest">
+             {useSelectionIfAvailable && hasSelection 
+               ? `(Using ${contextData.length} selected tracks - ${t.customSelection})` 
+               : `(Analyzing total library: ${data.length} tracks - ${t.topFolder})`}
+           </span>
+        </div>
       </div>
 
       {activePrompt && (

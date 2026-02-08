@@ -25,6 +25,8 @@ const App: React.FC = () => {
   const [lang, setLang] = useState<Language>('en');
   const [history, setHistory] = useState<ScanHistory[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [intelligenceContext, setIntelligenceContext] = useState<AnalyzedMetadata[] | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   
   const [stats, setStats] = useState<AppStats>({
     totalFiles: 0,
@@ -34,6 +36,23 @@ const App: React.FC = () => {
     topFolder: '',
     maxFiles: 0
   });
+
+  // Sync intelligenceContext with selection whenever it changes
+  useEffect(() => {
+    if (selectedIds.size > 0) {
+      const selectedTracks = analyzedMetadata.filter(d => selectedIds.has(d.id));
+      setIntelligenceContext(selectedTracks);
+    } else {
+      setIntelligenceContext(null);
+    }
+  }, [selectedIds, analyzedMetadata]);
+
+  // Reset intelligence context jump if returning to analysis and no manual selection is active
+  useEffect(() => {
+    if (mode === AppMode.ANALYSIS && selectedIds.size === 0) {
+      setIntelligenceContext(null);
+    }
+  }, [mode, selectedIds.size]);
 
   // Load language and history
   useEffect(() => {
@@ -71,6 +90,8 @@ const App: React.FC = () => {
   const resetApp = () => {
     setRawFiles([]);
     setAnalyzedMetadata([]);
+    setIntelligenceContext(null);
+    setSelectedIds(new Set());
     setStats({ totalFiles: 0, totalSize: 0, analyzedCount: 0, totalFolders: 0, topFolder: '', maxFiles: 0 });
     setMode(AppMode.RAW);
   };
@@ -80,8 +101,18 @@ const App: React.FC = () => {
     if (scan) {
       setRawFiles(scan.files);
       setAnalyzedMetadata(scan.metadata);
+      setIntelligenceContext(null);
+      setSelectedIds(new Set());
       setMode(AppMode.ANALYSIS);
     }
+  };
+
+  const handleIntelligenceJump = (tracks: AnalyzedMetadata[]) => {
+    // If they jump to intelligence from a filtered view without selections, we set that context
+    if (selectedIds.size === 0) {
+      setIntelligenceContext(tracks);
+    }
+    setMode(AppMode.INTELLIGENCE);
   };
 
   const processFiles = useCallback(async (fileList: FileList) => {
@@ -126,7 +157,6 @@ const App: React.FC = () => {
       setRawFiles(raw);
       
       const analyzed: AnalyzedMetadata[] = [];
-      const folderCounts: Record<string, number> = {};
       const folders = new Set<string>();
 
       for (let i = 0; i < validFiles.length; i++) {
@@ -136,7 +166,6 @@ const App: React.FC = () => {
         
         const folderPath = relativePath.split('/').slice(0, -1).join('/') || 'Root';
         folders.add(folderPath);
-        folderCounts[folderPath] = (folderCounts[folderPath] || 0) + 1;
 
         const parsed = parseArtistTitle(file.name);
         
@@ -175,14 +204,7 @@ const App: React.FC = () => {
         }
       }
 
-      let topFolder = 'N/A';
-      let maxFiles = 0;
-      Object.entries(folderCounts).forEach(([path, count]) => {
-        if (count > maxFiles) {
-          maxFiles = count;
-          topFolder = sanitizeString(path);
-        }
-      });
+      const rootFolderName = raw[0]?.relativePath.split('/')[0] || 'Library Root';
 
       setAnalyzedMetadata(analyzed);
       setStats({
@@ -190,16 +212,15 @@ const App: React.FC = () => {
         totalSize: totalSize,
         analyzedCount: analyzed.length,
         totalFolders: folders.size,
-        topFolder,
-        maxFiles
+        topFolder: rootFolderName,
+        maxFiles: raw.length
       });
 
       // Save to history
-      const rootName = raw[0]?.relativePath.split('/')[0] || 'Unknown Folder';
       const newScan: ScanHistory = {
         id: generateId(),
         timestamp: Date.now(),
-        folderName: sanitizeString(rootName),
+        folderName: sanitizeString(rootFolderName),
         fileCount: raw.length,
         files: raw,
         metadata: analyzed
@@ -263,7 +284,7 @@ const App: React.FC = () => {
                   </p>
                 </div>
                 <FileUploader onFilesSelected={processFiles} isProcessing={isProcessing} />
-                <div className="mt-10 flex gap-10 text-[9px] font-black text-gray-600 uppercase tracking-widest">
+                <div className="mt-10 flex gap-4 text-[9px] font-black text-gray-600 uppercase tracking-widest">
                   <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-lemon"/> {t.localOnly}</span>
                   <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-lemon"/> {t.aiReady}</span>
                   <span className="flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-lemon"/> {t.recursive}</span>
@@ -273,7 +294,7 @@ const App: React.FC = () => {
           ) : (
             <div className="flex flex-col gap-8">
               {rawFiles.length > 0 && mode !== AppMode.HISTORY && (
-                <StatsCard stats={stats} lang={lang} />
+                <StatsCard stats={stats} lang={lang} isCustomSelection={selectedIds.size > 0 && mode !== AppMode.RAW} />
               )}
               
               <div className="flex-1 min-h-[700px]">
@@ -282,9 +303,16 @@ const App: React.FC = () => {
                 ) : mode === AppMode.HISTORY ? (
                   <HistoryView history={history} lang={lang} onReopen={reopenScan} />
                 ) : mode === AppMode.ANALYSIS ? (
-                  <AnalysisView data={analyzedMetadata} lang={lang} rawFiles={rawFiles} />
+                  <AnalysisView 
+                    data={analyzedMetadata} 
+                    lang={lang} 
+                    rawFiles={rawFiles} 
+                    onIntelligenceJump={handleIntelligenceJump}
+                    selectedIds={selectedIds}
+                    setSelectedIds={setSelectedIds}
+                  />
                 ) : (
-                  <IntelligenceView data={analyzedMetadata} lang={lang} />
+                  <IntelligenceView data={analyzedMetadata} lang={lang} contextData={intelligenceContext} />
                 )}
               </div>
 

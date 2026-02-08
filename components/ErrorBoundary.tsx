@@ -3,7 +3,8 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
 
 interface Props {
-  children: ReactNode;
+  // Fix: Making children optional helps resolve JSX parsing issues where children aren't correctly mapped to required props.
+  children?: ReactNode;
 }
 
 interface State {
@@ -12,9 +13,18 @@ interface State {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false
-  };
+  // Fix: Explicitly declare state and props to ensure they are visible to the TypeScript compiler as members of this class.
+  public state: State;
+  public props: Props;
+
+  // Fix: Explicitly define the constructor to ensure properties are properly initialized and recognized.
+  constructor(props: Props) {
+    super(props);
+    this.props = props;
+    this.state = {
+      hasError: false
+    };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };
@@ -25,6 +35,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public render() {
+    // Fix: accessing this.state is now safe as it's declared in the class body.
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-charcoal flex items-center justify-center p-8">
@@ -47,6 +58,7 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
+    // Fix: accessing this.props.children is now safe as it's declared in the class body.
     return this.props.children;
   }
 }
