@@ -5,9 +5,12 @@ export enum AppMode {
   INTELLIGENCE = 'INTELLIGENCE'
 }
 
-export type DataSource = 'filesystem' | 'folder_heuristic' | 'analyzed' | 'ai_suggested';
+export type Language = 'en' | 'pt' | 'es';
 
-export type AIProvider = 'ChatGPT' | 'Gemini' | 'Claude' | 'Custom';
+/**
+ * Supported AI Providers for prompt generation
+ */
+export type AIProvider = 'ChatGPT' | 'Gemini' | 'Claude';
 
 export interface RawFile {
   id: string;
@@ -22,13 +25,6 @@ export interface HeuristicSignal {
   level: number;
   value: string;
   source: 'folder_name';
-}
-
-export interface AISuggestion {
-  groupName?: string;
-  transitionReason?: string;
-  energyEstimate?: number;
-  compatibilityScore?: number;
 }
 
 export interface AnalyzedMetadata {
@@ -48,13 +44,22 @@ export interface AnalyzedMetadata {
   fileName: string;
   relativePath: string;
   heuristics: HeuristicSignal[];
-  aiSuggestions?: AISuggestion;
+}
+
+export interface ScanHistory {
+  id: string;
+  timestamp: number;
+  folderName: string;
+  fileCount: number;
+  files: RawFile[];
+  metadata: AnalyzedMetadata[];
 }
 
 export interface AppStats {
   totalFiles: number;
   totalSize: number;
   analyzedCount: number;
-  genreSignals: Record<string, number>;
-  bpmDistribution: Record<string, number>;
+  totalFolders: number;
+  topFolder: string;
+  maxFiles: number;
 }

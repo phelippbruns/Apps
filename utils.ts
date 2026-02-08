@@ -34,24 +34,14 @@ export const downloadTxt = (files: RawFile[]) => {
 };
 
 export const downloadCsv = (data: AnalyzedMetadata[]) => {
-  const headers = [
-    'filepath', 'filename', 'title', 'artist', 'album', 
-    'genre', 'folder_signals', 'bpm', 'duration', 'format', 'filesize'
-  ];
+  const headers = ['Artist', 'Track Name', 'Folder'];
   
-  const rows = data.map(m => [
-    m.relativePath,
-    m.fileName,
-    m.title || '',
-    m.artist || '',
-    m.album || '',
-    (m.genre || []).join(';'),
-    m.heuristics.map(h => h.value).join('|'),
-    m.bpm || '',
-    m.duration?.toFixed(2) || '',
-    m.format,
-    m.fileSize
-  ].map(val => `"${val}"`).join(','));
+  const rows = data.map(m => {
+    const artist = m.artist || 'Unknown Artist';
+    const title = m.title || m.fileName.split('.')[0];
+    const folder = m.heuristics.map(h => h.value).join('/') || 'Root';
+    return [artist, title, folder].map(val => `"${val}"`).join(',');
+  });
 
   const content = [headers.join(','), ...rows].join('\n');
   const blob = new Blob([content], { type: 'text/csv' });
@@ -78,6 +68,29 @@ export const extractHeuristics = (path: string): HeuristicSignal[] => {
   }));
 };
 
+/**
+ * Parsing rule: "Artist - Track Name"
+ * Also cleans artist names by removing "_" and "."
+ */
+export const parseArtistTitle = (fileName: string) => {
+  const nameWithoutExt = fileName.replace(/\.[^/.]+$/, "");
+  let artist: string | undefined;
+  let title: string = nameWithoutExt.trim();
+
+  if (nameWithoutExt.includes(" - ")) {
+    const parts = nameWithoutExt.split(" - ");
+    artist = parts[0].trim();
+    title = parts.slice(1).join(" - ").trim();
+  }
+
+  // Clean artist name if exists
+  if (artist) {
+    artist = artist.replace(/[_\.]/g, ' ').trim();
+  }
+
+  return { artist, title };
+};
+
 export const generateExternalAIPrompt = (provider: AIProvider, libraryText: string, intent: string) => {
   const systemRole = "You are a world-class DJ music curator and library organization expert.";
   const task = `Based on the following music library list, please: ${intent || 'analyze the collection and suggest a creative 1-hour set with transition reasoning'}.`;
@@ -89,55 +102,8 @@ ${task}
 
 LIBRARY DATA:
 ---
-${libraryText.slice(0, 15000)}${libraryText.length > 15000 ? '\n... (truncated for context limits)' : ''}
+${libraryText}
 ---
 
 Output format requested: Structured list of tracks with BPM, Key, and "Why this works" descriptions.`;
-};
-
-export const getGeminiSetSuggestions = async (tracks: AnalyzedMetadata[], intent: string) => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
-  const trackSnapshot = tracks.map(t => ({
-    id: t.id,
-    name: t.fileName,
-    folder: t.heuristics.map(h => h.value).join('/'),
-    bpm: t.bpm,
-    key: t.key
-  })).slice(0, 50);
-
-  const prompt = `Act as a world-class DJ music curator. 
-Analyze these tracks and suggest a set list for this intent: "${intent}".
-Track list:
-${JSON.stringify(trackSnapshot)}`;
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-preview',
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              trackId: { type: Type.STRING },
-              transitionReason: { type: Type.STRING },
-              energy: { type: Type.NUMBER },
-              grouping: { type: Type.STRING },
-            },
-            required: ["trackId", "transitionReason", "energy", "grouping"],
-          }
-        },
-        thinkingConfig: { thinkingBudget: 0 }
-      },
-    });
-
-    const jsonStr = response.text?.trim() || '[]';
-    return JSON.parse(jsonStr);
-  } catch (error) {
-    console.error("AI Generation Error:", error);
-    return [];
-  }
 };
