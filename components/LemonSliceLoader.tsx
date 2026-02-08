@@ -17,19 +17,19 @@ export const LemonSliceLoader: React.FC<LemonSliceLoaderProps> = ({ lang }) => {
           <style>
             {`
               @keyframes slice-open-top {
-                from { transform: translateY(0); }
-                to { transform: translateY(-15px); }
+                0% { transform: translateY(0) rotate(0); }
+                100% { transform: translateY(-20px) rotate(-5deg); }
               }
               @keyframes slice-open-bottom {
-                from { transform: translateY(0); }
-                to { transform: translateY(15px); }
+                0% { transform: translateY(0) rotate(0); }
+                100% { transform: translateY(20px) rotate(5deg); }
               }
               .lemon-cut-top { 
-                animation: slice-open-top 1s ease-out forwards; 
+                animation: slice-open-top 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
                 fill: #CCFF00;
               }
               .lemon-cut-bottom { 
-                animation: slice-open-bottom 1s ease-out forwards; 
+                animation: slice-open-bottom 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; 
                 fill: #CCFF00;
               }
               .fade-in-text {
@@ -41,20 +41,19 @@ export const LemonSliceLoader: React.FC<LemonSliceLoaderProps> = ({ lang }) => {
               }
             `}
           </style>
-          {/* Top Half of Cut Lemon */}
+          {/* Top Half */}
           <g className="lemon-cut-top">
              <path d="M10,50 Q10,10 50,10 Q90,10 90,50 L10,50 Z" />
-             {/* Lemon details */}
-             <path d="M50,20 L50,50" stroke="#1a1a1a" strokeWidth="1" opacity="0.3" />
-             <path d="M30,30 L50,50" stroke="#1a1a1a" strokeWidth="1" opacity="0.3" />
-             <path d="M70,30 L50,50" stroke="#1a1a1a" strokeWidth="1" opacity="0.3" />
+             <path d="M50,20 L50,50" stroke="#1a1a1a" strokeWidth="1.5" opacity="0.4" />
+             <path d="M30,30 L50,50" stroke="#1a1a1a" strokeWidth="1.5" opacity="0.4" />
+             <path d="M70,30 L50,50" stroke="#1a1a1a" strokeWidth="1.5" opacity="0.4" />
           </g>
-          {/* Bottom Half of Cut Lemon */}
+          {/* Bottom Half */}
           <g className="lemon-cut-bottom">
-             <path d="M10,52 L90,52 Q90,90 50,90 Q10,90 10,52 Z" />
-             <path d="M50,52 L50,80" stroke="#1a1a1a" strokeWidth="1" opacity="0.3" />
-             <path d="M30,70 L50,52" stroke="#1a1a1a" strokeWidth="1" opacity="0.3" />
-             <path d="M70,70 L50,52" stroke="#1a1a1a" strokeWidth="1" opacity="0.3" />
+             <path d="M10,52 L90,52 Q90,92 50,92 Q10,92 10,52 Z" />
+             <path d="M50,52 L50,82" stroke="#1a1a1a" strokeWidth="1.5" opacity="0.4" />
+             <path d="M30,72 L50,52" stroke="#1a1a1a" strokeWidth="1.5" opacity="0.4" />
+             <path d="M70,72 L50,52" stroke="#1a1a1a" strokeWidth="1.5" opacity="0.4" />
           </g>
         </svg>
       </div>

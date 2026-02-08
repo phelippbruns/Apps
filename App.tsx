@@ -131,7 +131,7 @@ const App: React.FC = () => {
           title: metadata.common.title || parsed.title,
           artist: metadata.common.artist || parsed.artist,
           album: metadata.common.album,
-          genre: metadata.common.genre,
+          genre: metadata.common.genre, // Real genre extraction
           year: metadata.common.year,
           bpm: metadata.common.bpm,
           duration: metadata.format.duration,
@@ -148,6 +148,7 @@ const App: React.FC = () => {
           id: Math.random().toString(36).substr(2, 9),
           title: parsed.title,
           artist: parsed.artist,
+          genre: undefined, // Empty if missing
           format: file.name.split('.').pop()?.toUpperCase() || '???',
           fileSize: file.size,
           fileName: file.name,
@@ -192,7 +193,7 @@ const App: React.FC = () => {
 
     setIsProcessing(false);
     
-    // Success notification and redirect
+    // Success notification and redirect to "My Tracks"
     setSuccessMessage(TRANSLATIONS[lang].uploadSuccess);
     setTimeout(() => {
       setSuccessMessage(null);
